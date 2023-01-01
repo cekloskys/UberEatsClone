@@ -6,16 +6,25 @@ import MenuItemDetailsScreen from '../screens/MenuItemDetails';
 import BasketScreen from '../screens/BasketScreen';
 import OrdersScreen from '../screens/OrdersScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen';
+import ProfileScreen from "../screens/ProfileScreen";
 import { Foundation, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { useAuthContect } from "../contexts/AuthContext";
 
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
+
+    const { dbUser } = useAuthContect();
+
     return (
         <Stack.Navigator screenOptions={{
             headerShown: false,
         }}>
-            <Stack.Screen name="HomeTabs" component={HomeTabs}/>
+            {dbUser ? (
+                <Stack.Screen name="HomeTabs" component={HomeTabs}/>
+            ) : (
+                <Stack.Screen name="Profile" component={ProfileScreen}/>
+            )}           
         </Stack.Navigator>
     );
 };
@@ -42,7 +51,7 @@ const HomeTabs = () => {
             />
             <Tab.Screen 
                 name="Profile" 
-                component={OrdersScreen} 
+                component={ProfileScreen} 
                 options={{
                     tabBarIcon: ({color}) => <FontAwesome5 name="user-alt" size={24} color={color} />,
                 }}
@@ -57,7 +66,7 @@ const HomeStackNavigator = () => {
     return (
         <HomeStack.Navigator>
             <HomeStack.Screen name="Restaurants" component={HomeScreen} />
-            <HomeStack.Screen name="Restaurant" component={RestaurantDetailsScreen} />
+            <HomeStack.Screen name="Restaurant" component={RestaurantDetailsScreen} options={{headerShown: false}}/>
             <HomeStack.Screen name="Menu Item" component={MenuItemDetailsScreen} />
             <HomeStack.Screen name="Basket" component={BasketScreen} />
         </HomeStack.Navigator>   

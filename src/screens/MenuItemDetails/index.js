@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { DataStore } from 'aws-amplify';
+import { Dish } from '../../models';
 import {AntDesign} from '@expo/vector-icons';
 import styles from './styles';
-import restaurants from '../../../assets/data/restaurants.json';
+import { useBasketContext } from '../../contexts/BasketContext';
 
 const MenuItemDetailsScreen = () => {
 
     const navigation = useNavigation();
     const route = useRoute();
     const id = route.params?.id;
-    const dish = restaurants[0].dishes[id - 1];
+    const [dish, setDish] = useState([]);
 
     const [quantity, setQuantity] = useState(1);
+
+    const {addDishToBasket} = useBasketContext();
+
+    useEffect(() => {
+        DataStore.query(Dish, id).then(setDish);
+    }, []);
 
     const onMinus = () => {
         if (quantity > 1) {
@@ -28,9 +36,16 @@ const MenuItemDetailsScreen = () => {
         return dish.price * quantity;
     };
 
-    const onPress = () => {
-        navigation.navigate('Basket');
+    const onPress = async () => {
+        await addDishToBasket(dish, quantity);
+        navigation.goBack();
     };
+
+    if (!dish) {
+        return (
+          <ActivityIndicator color='grey' />
+        );
+    }
 
   return (
     <View style={styles.page}>
